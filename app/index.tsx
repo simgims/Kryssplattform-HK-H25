@@ -3,28 +3,31 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import Post from "@/components/Post";
 import PostFormModal from "@/components/PostFormModal";
 import { PostData } from "@/types/post";
+import { getData } from "@/utils/local-storage";
 import { Stack } from "expo-router";
 import { useState } from "react";
 
 export default function HomeScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [posts, setPosts] = useState<PostData[]>([
-    {
-      title: "Mitt flrste innlegg",
-      description: "Sensasjonelt!",
-    },
-    {
-      title: "Mitt andre innlegg",
-      description: "Ubeskrivelig flott",
-    },
-  ]);
+  const [posts, setPosts] = useState<PostData[]>([]);
+
+  async function createPostLocal(newPost: PostData) {
+    setPosts([...posts, newPost]);
+    console.log(posts);
+  }
 
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Pressable onPress={() => setIsModalVisible(true)}>
+            <Pressable
+              onPress={() => {
+                //setIsModalVisible(true);
+                //storeData("Bippiti", "Boppipti");
+                getData("Bippiti");
+              }}
+            >
               <Text>Nytt innlegg</Text>
             </Pressable>
           ),
