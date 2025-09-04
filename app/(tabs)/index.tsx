@@ -3,18 +3,30 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import Post from "@/components/Post";
 import PostFormModal from "@/components/PostFormModal";
 import { PostData } from "@/types/post";
-import { getData } from "@/utils/local-storage";
+import { getData, storeData } from "@/utils/local-storage";
 import { Stack } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function HomeScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [posts, setPosts] = useState<PostData[]>([]);
 
   async function createPostLocal(newPost: PostData) {
-    setPosts([...posts, newPost]);
-    console.log(posts);
+    const updatedPostList = [...posts, newPost];
+    storeData("postStore", JSON.stringify(updatedPostList));
+    setPosts(updatedPostList);
   }
+
+  async function getPostsFromLocal() {
+    const exisitngPosts = await getData("postStore");
+    if (exisitngPosts) {
+      setPosts(JSON.parse(exisitngPosts));
+    }
+  }
+
+  useEffect(() => {
+    getPostsFromLocal();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
@@ -23,9 +35,9 @@ export default function HomeScreen() {
           headerRight: () => (
             <Pressable
               onPress={() => {
-                //setIsModalVisible(true);
+                setIsModalVisible(true);
                 //storeData("Bippiti", "Boppipti");
-                getData("Bippiti");
+                //getData("Bippiti");
               }}
             >
               <Text>Nytt innlegg</Text>
@@ -37,7 +49,7 @@ export default function HomeScreen() {
         isVisible={isModalVisible}
         setIsVisible={setIsModalVisible}
         // Det nye innlegget dukker opp her, og vi kan legge det til i lista over innlegg
-        addPost={(newPost) => setPosts([...posts, newPost])}
+        addPost={createPostLocal}
       />
       <FlatList
         data={posts}

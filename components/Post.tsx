@@ -1,5 +1,6 @@
 import { PostData } from "@/types/post";
-import { StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export type PostProps = {
   postData: PostData;
@@ -7,12 +8,14 @@ export type PostProps = {
 
 export default function Post({ postData }: PostProps) {
   return (
-    <View style={styles.post}>
-      <Text style={styles.postTitle}>{postData.title}</Text>
-      <View style={styles.postDescriptionContainer}>
-        <Text style={styles.postDescription}>{postData.description}</Text>
+    <Pressable onPress={() => router.push("/post-detail")}>
+      <View style={styles.post}>
+        <Text style={styles.postTitle}>{postData.title}</Text>
+        <View style={styles.postDescriptionContainer}>
+          <Text style={styles.postDescription}>{postData.description}</Text>
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

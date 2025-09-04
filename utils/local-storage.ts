@@ -14,6 +14,7 @@
         const data = await AsyncStorage.getItem(key);
         if (data !== null) {
             console.log(data);
+            return data;
         }
     } catch (e) {
         console.log("Feil med storeData()" + e);
