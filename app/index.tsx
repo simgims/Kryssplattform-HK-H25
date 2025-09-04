@@ -1,19 +1,14 @@
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import Post from "@/components/Post";
+import PostFormModal from "@/components/PostFormModal";
 import { PostData } from "@/types/post";
 import { Stack } from "expo-router";
 import { useState } from "react";
 
 export default function HomeScreen() {
-  const posts: PostData[] = [
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [posts, setPosts] = useState<PostData[]>([
     {
       title: "Mitt flrste innlegg",
       description: "Sensasjonelt!",
@@ -22,9 +17,7 @@ export default function HomeScreen() {
       title: "Mitt andre innlegg",
       description: "Ubeskrivelig flott",
     },
-  ];
-
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  ]);
 
   return (
     <View style={styles.mainContainer}>
@@ -32,16 +25,17 @@ export default function HomeScreen() {
         options={{
           headerRight: () => (
             <Pressable onPress={() => setIsModalVisible(true)}>
-              <Text>Knapp?</Text>
+              <Text>Nytt innlegg</Text>
             </Pressable>
           ),
         }}
       />
-      <Modal visible={isModalVisible} animationType="slide">
-        <Pressable onPress={() => console.log("Kna")}>
-          <Text>Knapp?</Text>
-        </Pressable>
-      </Modal>
+      <PostFormModal
+        isVisible={isModalVisible}
+        setIsVisible={setIsModalVisible}
+        // Det nye innlegget dukker opp her, og vi kan legge det til i lista over innlegg
+        addPost={(newPost) => setPosts([...posts, newPost])}
+      />
       <FlatList
         data={posts}
         ItemSeparatorComponent={() => <View style={{ height: 12 }}></View>}
