@@ -36,8 +36,6 @@ export default function HomeScreen() {
             <Pressable
               onPress={() => {
                 setIsModalVisible(true);
-                //storeData("Bippiti", "Boppipti");
-                //getData("Bippiti");
               }}
             >
               <Text>Nytt innlegg</Text>

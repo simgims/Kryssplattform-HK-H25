@@ -3,7 +3,11 @@ import { Tabs } from "expo-router";
 
 export default function TabBar() {
   return (
-    <Tabs>
+    <Tabs
+      screenOptions={{
+        title: "hjem",
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
