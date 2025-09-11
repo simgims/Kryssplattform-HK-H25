@@ -1,14 +1,9 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { AuthSessionProvider } from "@/providers/authctx";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -22,7 +17,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <AuthSessionProvider>
       <Stack>
         <Stack.Screen
           name="(tabs)"
@@ -35,7 +30,6 @@ export default function RootLayout() {
         <Stack.Screen name="declarations" />
         <Stack.Screen name="post-details/[id]" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </AuthSessionProvider>
   );
 }
