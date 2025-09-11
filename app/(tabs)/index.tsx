@@ -6,6 +6,7 @@ import { PostData } from "@/types/post";
 import { getData, storeData } from "@/utils/local-storage";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -35,7 +36,7 @@ export default function HomeScreen() {
           headerRight: () => (
             <Pressable
               onPress={() => {
-                setIsModalVisible(true);
+                 setIsModalVisible(true);
               }}
             >
               <Text>Nytt innlegg</Text>
