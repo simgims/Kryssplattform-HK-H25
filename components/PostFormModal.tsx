@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import SelectImageModal from "./SelectImageModal";
-import SelectImageModeal from "./SelectImageModal";
+
 
 export type PostModalProps = {
 	isVisible: boolean;
@@ -82,6 +82,7 @@ export default function PostFormModal({
                 id: titleText + descText,
                 title: titleText,
                 description: descText,
+				imageUri: image ? image : "",
               };
               // Huske å fjerne innholdet i tekstinput så vi får en ny start neste gang vi vil lage et innlegg
               addPost(newPost);
