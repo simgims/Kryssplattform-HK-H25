@@ -1,7 +1,10 @@
 import { Slot } from "expo-router";
-import { AuthSessionProvider } from "@/providers/authctx";
+import { AuthSessionProvider, useAuthSession } from "@/providers/authctx";
 
 export default function RootRootLayout() {
+
+
+
     return (
         <AuthSessionProvider>
             <Slot />
