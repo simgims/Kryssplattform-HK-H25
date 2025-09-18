@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import {
 	createContext,
 	ReactNode,
@@ -32,6 +33,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 	const [userSession, setUserSession] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
+	const router = useRouter()
+
 	useEffect(() => {
 		AsyncStorage.getItem("authSession").then((value) => {
 			setUserSession(value);
@@ -45,6 +48,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 				signIn: (userName: string) => {
 					setUserSession(userName);
 					AsyncStorage.setItem("authSession", userName);
+					router.replace("/");
 				},
 				signOut: () => {
 					setUserSession(null);
