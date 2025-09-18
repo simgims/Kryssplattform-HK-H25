@@ -1,35 +1,36 @@
-import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { AuthSessionProvider } from "@/providers/authctx";
+import { useAuthSession } from "@/providers/authctx";
+import { Text, View } from "react-native";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
+  const { userNameSession, isLoading } = useAuthSession();
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
+  if (isLoading) {
+    return (
+      <View>
+        <Text>Henter bruker...</Text>
+      </View>
+    );
+  }
+
+  if (!userNameSession) {
+    return <Redirect href={"/authentication"} />;
   }
 
   return (
-    <AuthSessionProvider>
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen name="+not-found" />
-        <Stack.Screen name="post-details" />
-        <Stack.Screen name="declarations" />
-        <Stack.Screen name="post-details/[id]" />
-      </Stack>
-    </AuthSessionProvider>
+    <Stack>
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen name="+not-found" />
+      <Stack.Screen name="post-details" />
+      <Stack.Screen name="declarations" />
+      <Stack.Screen name="post-details/[id]" />
+    </Stack>
   );
 }
