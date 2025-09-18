@@ -2,6 +2,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import Post from "@/components/Post";
 import PostFormModal from "@/components/PostFormModal";
+import { useAuthSession } from "@/providers/authctx";
 import { PostData } from "@/types/post";
 import { getData, storeData } from "@/utils/local-storage";
 import { Stack } from "expo-router";
@@ -11,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function HomeScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [posts, setPosts] = useState<PostData[]>([]);
+  const { userNameSession } = useAuthSession();
 
   async function createPostLocal(newPost: PostData) {
     const updatedPostList = [...posts, newPost];
@@ -36,7 +38,13 @@ export default function HomeScreen() {
           headerRight: () => (
             <Pressable
               onPress={() => {
-                 setIsModalVisible(true);
+                if (!userNameSession) {
+                  console.log(
+                    "Du må være logget inn for å gjøre denne handlingen"
+                  );
+                  return;
+                }
+                setIsModalVisible(true);
               }}
             >
               <Text>Nytt innlegg</Text>

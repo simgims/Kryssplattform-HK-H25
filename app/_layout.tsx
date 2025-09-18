@@ -16,20 +16,20 @@ export default function RootLayout() {
 		return null;
 	}
 
-	return (
-		<AuthSessionProvider>
-			<Stack>
-				<Stack.Screen
-					name="(tabs)"
-					options={{
-						headerShown: false,
-					}}
-				/>
-				<Stack.Screen name="+not-found" />
-				<Stack.Screen name="post-details" />
-				<Stack.Screen name="declarations" />
-				<Stack.Screen name="post-details/[id]" />
-			</Stack>
-		</AuthSessionProvider>
-	);
+  return (
+    <AuthSessionProvider>
+      <Stack>
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="post-details" />
+        <Stack.Screen name="declarations" />
+        <Stack.Screen name="post-details/[id]" />
+      </Stack>
+    </AuthSessionProvider>
+  );
 }

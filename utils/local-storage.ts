@@ -1,5 +1,5 @@
-  import AsyncStorage from "@react-native-async-storage/async-storage";
   import { PostData } from "@/types/post";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
   export async function storeData(key: string, value: string) {
     try {
@@ -24,12 +24,12 @@
 
   export async function getPostByLocalId(id: string) {
     try {
-      const data = await AsyncStorage.getItem("postStore");
-      if (data!== null) {
-        const posts: PostData[] = JSON.parse(data);
-        return posts.find((post => post.id === id))
-      }
-  } catch (e) {
-        console.log("Feil med getPostByLocalId()" + e);
+        const data = await AsyncStorage.getItem("postStore");
+        if (data !== null) {
+          const posts: PostData[] = JSON.parse(data);
+          return posts.find(post => post.id === id);
+        }
+    } catch (e) {
+      console.log("Feil med getPostByIdLocal()", e)
     }
   }
