@@ -8,7 +8,6 @@ import {
 	useState,
 } from "react";
 
-
 type AuthContextType = {
 	signIn: (userName: string) => void;
 	signOut: VoidFunction;
@@ -33,7 +32,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 	const [userSession, setUserSession] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const router = useRouter()
+	const router = useRouter();
 
 	useEffect(() => {
 		AsyncStorage.getItem("authSession").then((value) => {

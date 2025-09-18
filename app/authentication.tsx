@@ -66,7 +66,6 @@ const Authentication = () => {
             {isSignUp ? "Registrering" : "Innlogging"}
           </Text>
         </Pressable>
-        {/* )} */}
         <View style={styles.buttonContainer}>
           <Pressable
             style={styles.primaryButton}
