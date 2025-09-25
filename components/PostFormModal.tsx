@@ -78,17 +78,20 @@ export default function PostFormModal({
           <Pressable
             style={[styles.button, { borderWidth: 2, borderColor: "gray" }]}
             onPress={() => {
-              const newPost: PostData = {
-                id: titleText + descText,
-                title: titleText,
-                description: descText,
-				imageUri: image ? image : "",
-              };
-              // Huske å fjerne innholdet i tekstinput så vi får en ny start neste gang vi vil lage et innlegg
-              addPost(newPost);
-              setTitleText("");
-              setDescText("");
-              setIsVisible(false);
+              if (image) {
+                const newPost: PostData = {
+                  id: titleText + descText,
+                  title: titleText,
+                  description: descText,
+                  imageUri: image,
+                  comments: [],
+                };
+                // Huske å fjerne innholdet i tekstinput så vi får en ny start neste gang vi vil lage et innlegg
+                addPost(newPost);
+                setTitleText("");
+                setDescText("");
+                setIsVisible(false);
+              }
             }}
           >
             <Text>Legg til</Text>

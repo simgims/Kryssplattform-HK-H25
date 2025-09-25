@@ -1,96 +1,160 @@
 import { useAuthSession } from "@/providers/authctx";
 import { PostData } from "@/types/post";
-import { getPostByLocalId, storeCommentToPost } from "@/utils/local-storage";
+import { getPostByLocalId, updatePostById } from "@/utils/local-storage";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, Text, TextInput, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 export default function PostDetailsPage() {
-	const { id } = useLocalSearchParams<{ id: string }>();
-	const [post, setPost] = useState<PostData | null>(null);
-	const [commentText, setCommentText] = useState("");
-	const { userNameSession } = useAuthSession();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { userNameSession } = useAuthSession();
 
-	async function fetchPostFromLocal(inputId: string) {
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-		const postLocal = await getPostByLocalId(inputId);
-		if (postLocal) {
-			setPost(postLocal);
-		}
-	}
+  const [post, setPost] = useState<PostData | null>(null);
+  const [commentText, setCommentText] = useState("");
 
-	async function addCommentToPost() {
-		if (!post) return;
-
-		const newComment = {
-			id: Date.now().toString(), // Generate a unique ID for the comment
-			userName: userNameSession ? userNameSession : "Anon",
-			text: commentText,
-		};
-
-		const updatedPost = {
-			...post,
-			comments: post.comments ? [...post.comments, newComment] : [newComment],
-		};
-
-		setPost(updatedPost);
-		setCommentText("");
-
-		// Save to localStorage
-		try {
-			await storeCommentToPost(updatedPost);
-		} catch (error) {
-			console.log("Failed to save comment:", error);
-		}
-	}
+  async function fetchPostFromLocal(inputId: string) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const postLocal = await getPostByLocalId(inputId);
+    if (postLocal) {
+      setPost(postLocal);
+    }
+  }
 
 	useEffect(() => {
 		fetchPostFromLocal(id);
 	}, [id]);
 
-	if (post === null) {
-		return (
-			<View>
-				<Text>LASTER</Text>
-			</View>
-		);
-	}
+  if (post === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Henter innlegg</Text>
+      </View>
+    );
+  }
 
-	return (
-		<View style={{ padding: 16 }}>
-			<Text>
-				{post.title}, {post.description}
-			</Text>
-			<Image
-				source={{ uri: post.imageUri }}
-				style={{ width: "100%", height: 200, marginTop: 8, borderRadius: 8 }}
-			/>
-			<TextInput
-				value={commentText}
-				onChangeText={setCommentText}
-				placeholder="Skriv en kommentar..."
-				style={{
-					borderWidth: 1,
-					borderColor: "gray",
-					borderRadius: 5,
-					padding: 8,
-					marginTop: 16,
-				}}
-				onSubmitEditing={addCommentToPost} // Legg til kommentaren når brukeren trykker "Enter"
-			></TextInput>
-			<View>
-				<Text>Kommentarer: {post.comments?.length}</Text>
-				{post.comments && post.comments.length > 0 ? (
-					post.comments.map((comment, index) => (
-						<View key={index} style={{ marginTop: 8 }}>
-							<Text style={{ fontWeight: "bold" }}>{comment.userName}:</Text>
-							<Text>{comment.text}</Text>
-						</View>
-					))
-				) : (
-					<Text>Ingen kommentarer enda.</Text>
-				)}
-			</View>
-		</View>
-	);
+  return (
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+      <Image style={styles.imageStyle} source={{ uri: post.imageUri }} />
+      <View style={styles.contentContainer}>
+        <Text style={styles.titleStyle}>{post.title}</Text>
+        <Text style={[styles.textStyle, { paddingTop: 6 }]}>
+          {post.description}
+        </Text>
+      </View>
+      <View style={styles.commentsContainer}>
+        <Text style={styles.commentTitle}>Kommentarer</Text>
+        <View style={styles.commentsList}>
+          <FlatList
+            data={post.comments}
+            renderItem={(comment) => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 6,
+                  paddingVertical: 2,
+                }}
+              >
+                <Text style={[styles.smallTextStyle, { color: "gray" }]}>
+                  {comment.item.author}:
+                </Text>
+                <Text style={styles.smallTextStyle}>
+                  {comment.item.comment}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
+        <View style={styles.addCommentContainer}>
+          <TextInput
+            value={commentText}
+            onChangeText={setCommentText}
+            style={styles.commentTextField}
+            placeholder="Skriv en kommentar"
+          />
+          <Pressable
+            onPress={() => {
+              const postComments = post.comments;
+              postComments.push({
+                comment: commentText,
+                author: userNameSession ?? "Dette skal ikke skje",
+              });
+              // Dette kalles "object spread operator" og er en metode for å kopiere et object samtidig som man endrer en eller flere av verdiene
+              const updatedPost: PostData = {
+                ...post,
+                comments: postComments,
+              };
+              // cmd+click for å se hvor funksjonen er definert, den ligger under local-storage.tsx
+              updatePostById(id, updatedPost);
+              setPost(updatedPost);
+              setCommentText("");
+            }}
+          >
+            <Text style={styles.smallTextStyle}>Legg til</Text>
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  imageStyle: {
+    width: "100%",
+    height: 300,
+    resizeMode: "cover",
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+  titleStyle: {
+    fontSize: 28,
+    fontWeight: "bold",
+  },
+  textStyle: {
+    fontSize: 18,
+  },
+  smallTextStyle: {
+    fontSize: 16,
+  },
+  postDataContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 16,
+  },
+  commentsContainer: {
+    marginTop: 16,
+    paddingHorizontal: 16,
+  },
+  commentTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  commentsList: {
+    maxHeight: 140,
+    marginTop: 2,
+  },
+  addCommentContainer: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 6,
+  },
+  commentTextField: {
+    borderBottomWidth: 1,
+    borderColor: "gray",
+    width: "70%",
+    fontSize: 16,
+  },
+});
