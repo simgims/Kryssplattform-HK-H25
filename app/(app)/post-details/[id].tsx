@@ -115,27 +115,28 @@ export default function PostDetailsPage() {
 				}}
 			>
 				<MapView
-					style={{ width: "100%", height: "100%" }}
 					zoomEnabled={false}
 					scrollEnabled={false}
 					rotateEnabled={false}
 					pitchEnabled={false}
 					initialRegion={{
-						latitude: post.postCoordinates?.longitude ?? 0,
-						longitude: post.postCoordinates?.latitude ?? 0,
+						latitude: post.postCoordinates?.latitude ?? 0,
+						longitude: post.postCoordinates?.longitude ?? 0,
 						latitudeDelta: 0.0082,
 						longitudeDelta: 0.0081,
 					}}
+					style={{ width: "100%", height: "100%" }}
 				>
 					<Marker
 						coordinate={{
-							latitude: post.postCoordinates?.longitude ?? 0,
-							longitude: post.postCoordinates?.latitude ?? 0,
+							latitude: post.postCoordinates?.latitude ?? 0,
+							longitude: post.postCoordinates?.longitude ?? 0,
 						}}
-					/>
-					<Callout>
-						<Text>Hei, jeg er en callout</Text>
-					</Callout>
+					>
+						<Callout>
+							<Text>Hei jeg er en callout</Text>
+						</Callout>
+					</Marker>
 				</MapView>
 			</View>
 		</View>
