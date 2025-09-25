@@ -1,8 +1,4 @@
-export interface PostComment {
-	id: string;
-	userName: string;
-	text: string;
-}
+import { LocationObjectCoords } from "expo-location";
 
 export interface PostData {
     id: string;
@@ -10,6 +6,7 @@ export interface PostData {
     description: string;
     imageUri: string;
     comments: PostComment[];
+    postCoordinates: LocationObjectCoords | null;
 }
 
 export interface PostComment {
