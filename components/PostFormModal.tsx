@@ -1,7 +1,7 @@
 import { PostData } from "@/types/post";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import * as Location from "expo-location";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Image,
   Modal,
@@ -31,26 +31,44 @@ export default function PostFormModal({
   const [image, setImage] = useState<string | null>(null);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [location, setLocation] =
+    useState<Location.LocationGeocodedAddress | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Tillatelse til å bruke lokasjon ble ike gitt");
-        return;
-      }
+  const postCoordinatesData = useRef<Location.LocationObjectCoords | null>(
+    null
+  );
 
-      let location = await Location.getCurrentPositionAsync();
-      console.log(location);
-    })();
-  }, []);
+  async function getLocation() {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Tillatelse til å bruke lokasjon ble ike gitt");
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync();
+    postCoordinatesData.current = location.coords;
+    const locationAddress = await Location.reverseGeocodeAsync({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
+    setLocation(locationAddress[0]);
+    console.log(locationAddress);
+  }
+
+  let locationPlaceholderText = "Her kommer det en kul adresse wow!";
+  if (errorMsg) {
+    locationPlaceholderText = errorMsg;
+  }
 
   return (
     <Modal transparent visible={isVisible} animationType="slide">
       <Modal visible={isCameraOpen}>
         <SelectImageModal
           closeModal={() => setIsCameraOpen(false)}
-          setImage={(image) => setImage(image)} // Her sendes uri til bildet (filsti til hvor bildet er lagret) og settes i image state
+          setImage={(image) => {
+            setImage(image);
+            getLocation();
+          }} // Her sendes uri til bildet (filsti til hvor bildet er lagret) og settes i image state
         />
       </Modal>
       <View style={styles.modalVisible}>
@@ -75,6 +93,13 @@ export default function PostFormModal({
             <EvilIcons name="image" size={80} color="black" /> // Hvis ikke viser vi ikonet som vanlig
           )}
         </Pressable>
+        <View style={{ marginTop: 8, marginBottom: 16 }}>
+          {location ? (
+            <Text>{`${location.name} - ${location.city}, ${location.country}`}</Text>
+          ) : (
+            <Text>{locationPlaceholderText}</Text>
+          )}
+        </View>
         <View style={styles.textInputContainer}>
           <TextInput
             style={styles.textInput}
@@ -100,7 +125,9 @@ export default function PostFormModal({
                   description: descText,
                   imageUri: image,
                   comments: [],
+                  postCoordinates: postCoordinatesData.current,
                 };
+                console.log(newPost);
                 // Huske å fjerne innholdet i tekstinput så vi får en ny start neste gang vi vil lage et innlegg
                 addPost(newPost);
                 setTitleText("");
