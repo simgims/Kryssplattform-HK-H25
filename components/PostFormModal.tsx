@@ -1,6 +1,7 @@
 import { PostData } from "@/types/post";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
-import { useState } from "react";
+import * as Location from "expo-location";
+import { useEffect, useState } from "react";
 import {
   Image,
   Modal,
@@ -28,6 +29,21 @@ export default function PostFormModal({
   const [descText, setDescText] = useState("");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Tillatelse til å bruke lokasjon ble ike gitt");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync();
+      console.log(location);
+    })();
+  }, []);
 
   return (
     <Modal transparent visible={isVisible} animationType="slide">
