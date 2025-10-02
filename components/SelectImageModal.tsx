@@ -12,8 +12,8 @@ export default function SelectImageModal({
 	closeModal,
 	setImage,
 }: SelectImageModalProps) {
-	const [permission, requestPermission] = useCameraPermissions();
-	const cameraRef = useRef<CameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraView>(null);
 
 	if (!permission) {
 		return <View />;
@@ -56,22 +56,32 @@ export default function SelectImageModal({
     }
   }
 
-	return (
-		<View style={styles.container}>
-			<CameraView style={styles.camera} facing="back" ref={cameraRef} />
-			<View style={styles.buttonContainer}>
-				<TouchableOpacity style={styles.button} onPress={() => closeModal()}>
-					<Text style={styles.text}>Avbryt</Text>
-				</TouchableOpacity>
-				<TouchableOpacity style={styles.button} onPress={() => captureImage()}>
-					<Text style={styles.text}>Snap!</Text>
-				</TouchableOpacity>
-				<TouchableOpacity style={styles.button} onPress={() => pickImage()}>
-					<Text style={styles.text}>Velg...</Text>
-				</TouchableOpacity>
-			</View>
-		</View>
-	);
+  async function captureImage() {
+    if (cameraRef.current) {
+      const image = await cameraRef.current.takePictureAsync();
+      if (image) {
+        setImage(image.uri);
+        closeModal();
+      }
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <CameraView style={styles.camera} facing="back" ref={cameraRef} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => closeModal()}>
+          <Text style={styles.text}>Avbryt</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => captureImage()}>
+          <Text style={styles.text}>Snap!</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => pickImage()}>
+          <Text style={styles.text}>Velg...</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
