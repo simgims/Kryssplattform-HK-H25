@@ -47,19 +47,6 @@ export default function SelectImageModal({
     if (cameraRef.current) {
       const image = await cameraRef.current.takePictureAsync();
       if (image) {
-        console.log(image);
-		setImage(image.uri);
-		closeModal();
-        
-      }
-
-    }
-  }
-
-  async function captureImage() {
-    if (cameraRef.current) {
-      const image = await cameraRef.current.takePictureAsync();
-      if (image) {
         setImage(image.uri);
         closeModal();
       }
