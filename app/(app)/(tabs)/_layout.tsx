@@ -26,6 +26,15 @@ export default function TabBar() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="postMap"
+        options={{
+          title: "Kart",
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="heat-map" size={24} color={color} />
+          ),
+        }}
+        />
     </Tabs>
   );
 }
