@@ -71,9 +71,8 @@ export default function HomeScreen() {
       <PostFormModal
         isVisible={isModalVisible}
         setIsVisible={setIsModalVisible}
-        // Det nye innlegget dukker opp her, og vi kan legge det til i lista over innlegg
-        addPost={async (post) => {
-          await postApi.createPost(post);
+        // Nytt innlegg håndteres nå fra modalen, alt vi trenger her er å laste inn på nytt
+        confirmPostAdded={async () => {
           await getPostsFromApi();
         }}
       />

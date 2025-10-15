@@ -1,7 +1,8 @@
+import * as commentApi from "@/api/commentApi";
 import * as postApi from "@/api/postApi";
 import { useAuthSession } from "@/providers/authctx";
-import { PostData } from "@/types/post";
-import { getPostByLocalId, updatePostById } from "@/utils/local-storage";
+import { PostComment, PostData } from "@/types/post";
+import { getPostByLocalId } from "@/utils/local-storage";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -33,6 +34,23 @@ export default function PostDetailsPage() {
   async function fetchPostFromApi(inputId: string) {
     const post = await postApi.getPostById(inputId);
     setPost(post);
+  }
+
+  // Dette er kun en testefunksjon for å se at ting fungerer, den vil bli fjernet senere
+  async function deleteCommentTEST(id: string) {
+    await commentApi.deleteComment(id);
+    fetchCommentsFromApiTEST();
+  }
+
+  // Dette er kun en testefunksjon for å se at ting fungerer, den vil bli fjernet senere
+  async function fetchCommentsFromApiTEST() {
+    const ids = [
+      "23v4qh8523XeVFAdrJpX",
+      "BDCZEnRvWayiYwnxBksP",
+      "rvgOEAMZQqyTquwWMuok",
+    ];
+    const comments = await commentApi.getCommentsByIds(ids);
+    console.log(comments);
   }
 
   useEffect(() => {
@@ -87,20 +105,27 @@ export default function PostDetailsPage() {
           />
           <Pressable
             onPress={() => {
-              const postComments = post.comments;
-              postComments.push({
+              const newComment: PostComment = {
+                id: commentText,
+                authorId: userNameSession ?? "Dette skal ikke skje",
                 comment: commentText,
                 author: userNameSession ?? "Dette skal ikke skje",
-              });
+              };
+
+              const postComments = post.comments;
+              postComments.push(newComment);
               // Dette kalles "object spread operator" og er en metode for å kopiere et object samtidig som man endrer en eller flere av verdiene
               const updatedPost: PostData = {
                 ...post,
                 comments: postComments,
               };
-              // cmd+click for å se hvor funksjonen er definert, den ligger under local-storage.tsx
-              updatePostById(id, updatedPost);
+
+              commentApi.createComment(newComment);
               setPost(updatedPost);
               setCommentText("");
+
+              // fetchCommentsFromApiTEST();
+              // deleteCommentTEST("BDCZEnRvWayiYwnxBksP");
             }}
           >
             <Text style={styles.smallTextStyle}>Legg til</Text>
