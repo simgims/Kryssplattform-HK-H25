@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import SelectImageModal from "./SelectImageModal";
+import * as imageApi from "@/api/imageApi";
 
 
 export type PostModalProps = {
@@ -121,6 +122,7 @@ export default function PostFormModal({
                 style={[styles.button, { borderWidth: 2, borderColor: "gray" }]}
                 onPress={async () => {
                   if (image) {
+
                     setIsLoading(true); // Setter til true for å vindikere at det jobbes med å laste opp innlegget
 
                     const newPost: PostData = {

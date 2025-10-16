@@ -6,30 +6,30 @@ import { getPostByLocalId } from "@/utils/local-storage";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-	FlatList,
-	Image,
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import MapView, { Callout, Marker } from "react-native-maps";
 
 export default function PostDetailsPage() {
-	const { id } = useLocalSearchParams<{ id: string }>();
-	const { userNameSession } = useAuthSession();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { userNameSession } = useAuthSession();
 
-	const [post, setPost] = useState<PostData | null>(null);
-	const [commentText, setCommentText] = useState("");
+  const [post, setPost] = useState<PostData | null>(null);
+  const [commentText, setCommentText] = useState("");
 
-	async function fetchPostFromLocal(inputId: string) {
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		const postLocal = await getPostByLocalId(inputId);
-		if (postLocal) {
-			setPost(postLocal);
-		}
-	}
+  async function fetchPostFromLocal(inputId: string) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const postLocal = await getPostByLocalId(inputId);
+    if (postLocal) {
+      setPost(postLocal);
+    }
+  }
 
   async function fetchPostFromApi(inputId: string) {
     const post = await postApi.getPostById(inputId);
@@ -58,10 +58,13 @@ export default function PostDetailsPage() {
     fetchPostFromApi(id);
   }, [id]);
 
-	useEffect(() => {
-		// fetchPostFromLocal(id);
-    fetchPostFromApi(id);
-	}, [id]);
+  if (post === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Henter innlegg</Text>
+      </View>
+    );
+  }
 
   return (
     <View
@@ -160,62 +163,62 @@ export default function PostDetailsPage() {
 }
 
 const styles = StyleSheet.create({
-	imageStyle: {
-		width: "100%",
-		height: 300,
-		resizeMode: "cover",
-	},
-	contentContainer: {
-		paddingHorizontal: 16,
-		paddingTop: 24,
-	},
-	titleStyle: {
-		fontSize: 28,
-		fontWeight: "bold",
-	},
-	textStyle: {
-		fontSize: 18,
-	},
-	smallTextStyle: {
-		fontSize: 16,
-	},
-	postDataContainer: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		paddingTop: 16,
-	},
-	commentsContainer: {
-		marginTop: 16,
-		paddingHorizontal: 16,
-	},
-	commentItem: {
-		flexDirection: "row",
-		gap: 6,
-		paddingVertical: 2,
-	},
-	commentTitle: {
-		fontSize: 18,
-		fontWeight: "bold",
-	},
-	commentsList: {
-		maxHeight: 140,
-		marginTop: 2,
-	},
-	addCommentContainer: {
-		flexDirection: "row",
-		gap: 8,
-		marginTop: 6,
-	},
-	commentTextField: {
-		borderBottomWidth: 1,
-		borderColor: "gray",
-		width: "70%",
-		fontSize: 16,
-	},
-	mapContainer: {
-		paddingHorizontal: 16,
-		width: "100%",
-		height: 250,
-		marginTop: 16,
-	},
+  imageStyle: {
+    width: "100%",
+    height: 300,
+    resizeMode: "cover",
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+  titleStyle: {
+    fontSize: 28,
+    fontWeight: "bold",
+  },
+  textStyle: {
+    fontSize: 18,
+  },
+  smallTextStyle: {
+    fontSize: 16,
+  },
+  postDataContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 16,
+  },
+  commentsContainer: {
+    marginTop: 16,
+    paddingHorizontal: 16,
+  },
+  commentItem: {
+    flexDirection: "row",
+    gap: 6,
+    paddingVertical: 2,
+  },
+  commentTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  commentsList: {
+    maxHeight: 140,
+    marginTop: 2,
+  },
+  addCommentContainer: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 6,
+  },
+  commentTextField: {
+    borderBottomWidth: 1,
+    borderColor: "gray",
+    width: "70%",
+    fontSize: 16,
+  },
+  mapContainer: {
+    paddingHorizontal: 16,
+    width: "100%",
+    height: 250,
+    marginTop: 16,
+  },
 });

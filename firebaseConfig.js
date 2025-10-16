@@ -17,12 +17,13 @@ export const auth = initializeAuth(app, {
 
 export const db = getFirestore(app);
 
-const storage = getStorage(app);
+const storeage = getStorage(app);
 
-export const getStorageRef = (path) => ref(storage, path);
+export const getStoreageRef = (path) => ref(storeage, path);
 
 export const getDownloadUrl = async (path) => {
-  const storageRef = getStorageRef(path);
-  const downloadUrl = await getDownloadURL(storageRef);
-  return downloadUrl;
-};
+  const storageRef = getStoreageRef(path);
+  const downloadUrl = await getDownloadURL(storageRef)
+  return downloadUrl
+}
+
