@@ -10,6 +10,8 @@ export interface PostData {
 }
 
 export interface PostComment {
+    id: string;
+    authorId: string;
     author: string;
     comment: string;
 }

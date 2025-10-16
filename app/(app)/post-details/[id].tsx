@@ -1,7 +1,8 @@
+import * as commentApi from "@/api/commentApi";
 import * as postApi from "@/api/postApi";
 import { useAuthSession } from "@/providers/authctx";
-import { PostData } from "@/types/post";
-import { getPostByLocalId, updatePostById } from "@/utils/local-storage";
+import { PostComment, PostData } from "@/types/post";
+import { getPostByLocalId } from "@/utils/local-storage";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -30,111 +31,132 @@ export default function PostDetailsPage() {
 		}
 	}
 
-	async function fetchPostFromApi(inputId: string) {
-		const post = await postApi.getPostById(inputId);
+  async function fetchPostFromApi(inputId: string) {
+    const post = await postApi.getPostById(inputId);
     setPost(post);
-	}
+  }
+
+  // Dette er kun en testefunksjon for å se at ting fungerer, den vil bli fjernet senere
+  async function deleteCommentTEST(id: string) {
+    await commentApi.deleteComment(id);
+    fetchCommentsFromApiTEST();
+  }
+
+  // Dette er kun en testefunksjon for å se at ting fungerer, den vil bli fjernet senere
+  async function fetchCommentsFromApiTEST() {
+    const ids = [
+      "23v4qh8523XeVFAdrJpX",
+      "BDCZEnRvWayiYwnxBksP",
+      "rvgOEAMZQqyTquwWMuok",
+    ];
+    const comments = await commentApi.getCommentsByIds(ids);
+    console.log(comments);
+  }
+
+  useEffect(() => {
+    // fetchPostFromLocal(id);
+    fetchPostFromApi(id);
+  }, [id]);
 
 	useEffect(() => {
 		// fetchPostFromLocal(id);
     fetchPostFromApi(id);
 	}, [id]);
 
-	if (post === null) {
-		return (
-			<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-				<Text>Henter innlegg</Text>
-			</View>
-		);
-	}
+  return (
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+      <Image style={styles.imageStyle} source={{ uri: post.imageUri }} />
+      <View style={styles.contentContainer}>
+        <Text style={styles.titleStyle}>{post.title}</Text>
+        <Text style={[styles.textStyle, { paddingTop: 6 }]}>
+          {post.description}
+        </Text>
+      </View>
+      <View style={styles.commentsContainer}>
+        <Text style={styles.commentTitle}>Kommentarer</Text>
+        <View style={styles.commentsList}>
+          <FlatList
+            data={post.comments}
+            renderItem={(comment) => (
+              <View style={styles.commentItem}>
+                <Text style={[styles.smallTextStyle, { color: "gray" }]}>
+                  {comment.item.author}:
+                </Text>
+                <Text style={styles.smallTextStyle}>
+                  {comment.item.comment}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
+        <View style={styles.addCommentContainer}>
+          <TextInput
+            value={commentText}
+            onChangeText={setCommentText}
+            style={styles.commentTextField}
+            placeholder="Skriv en kommentar"
+          />
+          <Pressable
+            onPress={() => {
+              const newComment: PostComment = {
+                id: commentText,
+                authorId: userNameSession ?? "Dette skal ikke skje",
+                comment: commentText,
+                author: userNameSession ?? "Dette skal ikke skje",
+              };
 
-	return (
-		<View
-			style={{
-				flex: 1,
-			}}
-		>
-			<Image style={styles.imageStyle} source={{ uri: post.imageUri }} />
-			<View style={styles.contentContainer}>
-				<Text style={styles.titleStyle}>{post.title}</Text>
-				<Text style={[styles.textStyle, { paddingTop: 6 }]}>
-					{post.description}
-				</Text>
-			</View>
-			<View style={styles.commentsContainer}>
-				<Text style={styles.commentTitle}>Kommentarer</Text>
-				<View style={styles.commentsList}>
-					<FlatList
-						data={post.comments}
-						renderItem={(comment) => (
-							<View style={styles.commentItem}>
-								<Text style={[styles.smallTextStyle, { color: "gray" }]}>
-									{comment.item.author}:
-								</Text>
-								<Text style={styles.smallTextStyle}>
-									{comment.item.comment}
-								</Text>
-							</View>
-						)}
-					/>
-				</View>
-				<View style={styles.addCommentContainer}>
-					<TextInput
-						value={commentText}
-						onChangeText={setCommentText}
-						style={styles.commentTextField}
-						placeholder="Skriv en kommentar"
-					/>
-					<Pressable
-						onPress={() => {
-							const postComments = post.comments;
-							postComments.push({
-								comment: commentText,
-								author: userNameSession ?? "Dette skal ikke skje",
-							});
-							// Dette kalles "object spread operator" og er en metode for å kopiere et object samtidig som man endrer en eller flere av verdiene
-							const updatedPost: PostData = {
-								...post,
-								comments: postComments,
-							};
-							// cmd+click for å se hvor funksjonen er definert, den ligger under local-storage.tsx
-							updatePostById(id, updatedPost);
-							setPost(updatedPost);
-							setCommentText("");
-						}}
-					>
-						<Text style={styles.smallTextStyle}>Legg til</Text>
-					</Pressable>
-				</View>
-			</View>
-			<View style={styles.mapContainer}>
-				<MapView
-					zoomEnabled={false}
-					scrollEnabled={false}
-					rotateEnabled={false}
-					pitchEnabled={false}
-					initialRegion={{
-						latitude: post.postCoordinates?.latitude ?? 0,
-						longitude: post.postCoordinates?.longitude ?? 0,
-						latitudeDelta: 0.0082,
-						longitudeDelta: 0.0081,
-					}}
-					style={{ width: "100%", height: "100%" }}
-				>
-					<Marker
-						coordinate={{
-							latitude: post.postCoordinates?.latitude ?? 0,
-							longitude: post.postCoordinates?.longitude ?? 0,
-						}}
-					>
-						<Callout>
-							<Text>Hei jeg er en callout</Text>
-						</Callout>
-					</Marker>
-				</MapView>
-			</View>
-		</View>
-	);
+              const postComments = post.comments;
+              postComments.push(newComment);
+              // Dette kalles "object spread operator" og er en metode for å kopiere et object samtidig som man endrer en eller flere av verdiene
+              const updatedPost: PostData = {
+                ...post,
+                comments: postComments,
+              };
+
+              commentApi.createComment(newComment);
+              setPost(updatedPost);
+              setCommentText("");
+
+              // fetchCommentsFromApiTEST();
+              // deleteCommentTEST("BDCZEnRvWayiYwnxBksP");
+            }}
+          >
+            <Text style={styles.smallTextStyle}>Legg til</Text>
+          </Pressable>
+        </View>
+      </View>
+      <View style={styles.mapContainer}>
+        <MapView
+          zoomEnabled={false}
+          scrollEnabled={false}
+          rotateEnabled={false}
+          pitchEnabled={false}
+          initialRegion={{
+            latitude: post.postCoordinates?.latitude ?? 0,
+            longitude: post.postCoordinates?.longitude ?? 0,
+            latitudeDelta: 0.0082,
+            longitudeDelta: 0.0081,
+          }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <Marker
+            coordinate={{
+              latitude: post.postCoordinates?.latitude ?? 0,
+              longitude: post.postCoordinates?.longitude ?? 0,
+            }}
+          >
+            <Callout>
+              <Text>Hei jeg er en callout</Text>
+            </Callout>
+          </Marker>
+        </MapView>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

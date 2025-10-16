@@ -1,11 +1,10 @@
-import { useFocusEffect } from "@react-navigation/native";
 import {
-	FlatList,
-	Pressable,
-	RefreshControl,
-	StyleSheet,
-	Text,
-	View,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 import * as postApi from "@/api/postApi";
@@ -18,10 +17,10 @@ import { Stack } from "expo-router";
 import { useCallback, useState } from "react";
 
 export default function HomeScreen() {
-	const [isModalVisible, setIsModalVisible] = useState(false);
-	const [posts, setPosts] = useState<PostData[]>([]);
-	const { userNameSession } = useAuthSession();
-	const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const { userNameSession } = useAuthSession();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
 	async function createPostLocal(newPost: PostData) {
 		const updatedPostList = [...posts, newPost];
@@ -36,60 +35,60 @@ export default function HomeScreen() {
 		}
 	}
 
-	async function getPostsFromApi() {
-		setIsRefreshing(true);
-		const posts = await postApi.getAllPosts();
-		setPosts(posts);
-		setIsRefreshing(false);
-	}
+  async function getPostsFromApi() {
+    setIsRefreshing(true);
+    const posts = await postApi.getAllPosts();
+    setPosts(posts);
+    setIsRefreshing(false);
+  }
 
-	useFocusEffect(
-		useCallback(() => {
-			//getPostsFromLocal();
-			getPostsFromApi();
-		}, [])
-	);
+  useEffect(() => {
+    // getPostsFromLocal();
+    getPostsFromApi();
+  }, []);
 
-	return (
-		<View style={styles.mainContainer}>
-			<Stack.Screen
-				options={{
-					headerRight: () => (
-						<Pressable
-							onPress={() => {
-								if (!userNameSession) {
-									console.log(
-										"Du må være logget inn for å gjøre denne handlingen"
-									);
-									return;
-								}
-								setIsModalVisible(true);
-							}}
-						>
-							<Text>Nytt innlegg</Text>
-						</Pressable>
-					),
-				}}
-			/>
-			<PostFormModal
-				isVisible={isModalVisible}
-				setIsVisible={setIsModalVisible}
-				// Det nye innlegget dukker opp her, og vi kan legge det til i lista over innlegg
-				addPost={async (post) => {
-					await postApi.createPost(post);
-					await getPostsFromApi();
-				}}
-			/>
-			<FlatList
-				data={posts}
-				refreshControl={
-					<RefreshControl refreshing={isRefreshing} onRefresh={getPostsFromApi} />
-				}
-				ItemSeparatorComponent={() => <View style={{ height: 12 }}></View>}
-				renderItem={(post) => <Post postData={post.item} />}
-			/>
-		</View>
-	);
+  return (
+    <View style={styles.mainContainer}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable
+              onPress={() => {
+                if (!userNameSession) {
+                  console.log(
+                    "Du må være logget inn for å gjøre denne handlingen"
+                  );
+                  return;
+                }
+                setIsModalVisible(true);
+              }}
+            >
+              <Text>Nytt innlegg</Text>
+            </Pressable>
+          ),
+        }}
+      />
+      <PostFormModal
+        isVisible={isModalVisible}
+        setIsVisible={setIsModalVisible}
+        // Nytt innlegg håndteres nå fra modalen, alt vi trenger her er å laste inn på nytt
+        confirmPostAdded={async () => {
+          await getPostsFromApi();
+        }}
+      />
+      <FlatList
+        data={posts}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={getPostsFromApi}
+          />
+        }
+        ItemSeparatorComponent={() => <View style={{ height: 12 }}></View>}
+        renderItem={(post) => <Post postData={post.item} />}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
