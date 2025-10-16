@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import SelectImageModal from "./SelectImageModal";
 
+
 export type PostModalProps = {
 	isVisible: boolean;
 	setIsVisible: (isVisible: boolean) => void;

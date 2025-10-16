@@ -1,18 +1,27 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import {
+	FlatList,
+	Pressable,
+	RefreshControl,
+	StyleSheet,
+	Text,
+	View,
+} from "react-native";
 
+import * as postApi from "@/api/postApi";
 import Post from "@/components/Post";
 import PostFormModal from "@/components/PostFormModal";
 import { useAuthSession } from "@/providers/authctx";
 import { PostData } from "@/types/post";
 import { getData, storeData } from "@/utils/local-storage";
 import { Stack } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function HomeScreen() {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [posts, setPosts] = useState<PostData[]>([]);
 	const { userNameSession } = useAuthSession();
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	async function createPostLocal(newPost: PostData) {
 		const updatedPostList = [...posts, newPost];
@@ -27,9 +36,17 @@ export default function HomeScreen() {
 		}
 	}
 
+	async function getPostsFromApi() {
+		setIsRefreshing(true);
+		const posts = await postApi.getAllPosts();
+		setPosts(posts);
+		setIsRefreshing(false);
+	}
+
 	useFocusEffect(
 		useCallback(() => {
-			getPostsFromLocal();
+			//getPostsFromLocal();
+			getPostsFromApi();
 		}, [])
 	);
 
@@ -58,10 +75,16 @@ export default function HomeScreen() {
 				isVisible={isModalVisible}
 				setIsVisible={setIsModalVisible}
 				// Det nye innlegget dukker opp her, og vi kan legge det til i lista over innlegg
-				addPost={createPostLocal}
+				addPost={async (post) => {
+					await postApi.createPost(post);
+					await getPostsFromApi();
+				}}
 			/>
 			<FlatList
 				data={posts}
+				refreshControl={
+					<RefreshControl refreshing={isRefreshing} onRefresh={getPostsFromApi} />
+				}
 				ItemSeparatorComponent={() => <View style={{ height: 12 }}></View>}
 				renderItem={(post) => <Post postData={post.item} />}
 			/>
